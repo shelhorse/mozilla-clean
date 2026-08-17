@@ -1,0 +1,182 @@
+:root {
+  color-scheme: light dark;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: Canvas;
+  color: CanvasText;
+}
+
+body {
+  margin: 0;
+}
+
+main {
+  box-sizing: border-box;
+  width: min(100%, 680px);
+  margin: 0 auto;
+  padding: 24px 18px 42px;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 4px;
+  font-size: 1.55rem;
+}
+
+header p,
+.hint,
+.privacy-note,
+.diagnostics {
+  color: color-mix(in srgb, CanvasText 70%, transparent);
+}
+
+fieldset {
+  display: grid;
+  gap: 9px;
+  margin: 0 0 20px;
+  padding: 18px;
+  border: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
+  border-radius: 12px;
+}
+
+legend {
+  padding: 0 6px;
+  font-weight: 700;
+}
+
+label {
+  font-weight: 600;
+}
+
+input,
+select,
+button {
+  box-sizing: border-box;
+  min-height: 44px;
+  border-radius: 8px;
+  font: inherit;
+}
+
+input,
+select {
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 9px 11px;
+  border: 1px solid color-mix(in srgb, CanvasText 28%, transparent);
+  background: Canvas;
+  color: CanvasText;
+}
+
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.check-row input {
+  width: 22px;
+  min-height: 22px;
+  margin: 0;
+}
+
+.hint {
+  margin: -3px 0 0;
+  font-size: .9rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+button {
+  padding: 10px 16px;
+  border: 0;
+  background: #174ea6;
+  color: #fff;
+  font-weight: 700;
+}
+
+button.secondary {
+  border: 1px solid #174ea6;
+  background: transparent;
+  color: #174ea6;
+}
+
+#status {
+  display: block;
+  min-height: 1.5em;
+  margin-top: 14px;
+  font-weight: 600;
+}
+
+.privacy-note {
+  margin-top: 28px;
+  font-size: .92rem;
+}
+
+.privacy-note h2 {
+  color: CanvasText;
+  font-size: 1rem;
+}
+
+.diagnostics {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
+  border-radius: 12px;
+  font-size: .92rem;
+}
+
+.diagnostics h2,
+.diagnostics dt,
+.diagnostics dd {
+  color: CanvasText;
+}
+
+.diagnostics h2 {
+  margin-bottom: 8px;
+  font-size: 1rem;
+}
+
+#diagnostic-summary {
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+#diagnostic-details {
+  display: grid;
+  gap: 7px;
+  margin: 0 0 12px;
+}
+
+#diagnostic-details[hidden] {
+  display: none;
+}
+
+#diagnostic-details div {
+  display: grid;
+  grid-template-columns: minmax(105px, 35%) 1fr;
+  gap: 10px;
+}
+
+#diagnostic-details dt {
+  font-weight: 700;
+}
+
+#diagnostic-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}

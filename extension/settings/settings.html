@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clean Article settings</title>
+    <link rel="stylesheet" href="settings.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <img src="../icons/clean-article.svg" alt="" width="48" height="48">
+        <div>
+          <h1>Clean Article</h1>
+          <p>Settings used whenever you tap Save on an article.</p>
+        </div>
+      </header>
+
+      <form id="settings-form">
+        <fieldset>
+          <legend>Document</legend>
+
+          <label for="format">Default format</label>
+          <select id="format" name="format">
+            <option value="epub">EPUB</option>
+            <option value="pdf">PDF</option>
+            <option value="rtf">RTF</option>
+          </select>
+
+          <label for="model">OpenAI model</label>
+          <select id="model" name="model">
+            <option value="gpt-5.6-luna">GPT-5.6 Luna</option>
+            <option value="gpt-5.6-terra">GPT-5.6 Terra</option>
+            <option value="gpt-5.6">GPT-5.6 Sol</option>
+          </select>
+        </fieldset>
+
+        <fieldset>
+          <legend>OpenAI</legend>
+
+          <label for="api-key">Project API key</label>
+          <input id="api-key" name="apiKey" type="password" autocomplete="off" placeholder="sk-proj-…" required>
+          <p class="hint">The key is stored in this Firefox profile and sent only to api.openai.com.</p>
+        </fieldset>
+
+        <div class="actions">
+          <button type="submit">Save settings</button>
+          <button id="test-button" class="secondary" type="button">Test connection</button>
+        </div>
+        <output id="status" role="status" aria-live="polite"></output>
+      </form>
+
+      <section class="privacy-note">
+        <h2>What is transmitted</h2>
+        <p>The page you explicitly save, its URL, and its visible article content are sent directly from Firefox to OpenAI. There is no separate relay.</p>
+      </section>
+
+      <section class="diagnostics" aria-labelledby="diagnostics-heading">
+        <h2 id="diagnostics-heading">Last save attempt</h2>
+        <p id="diagnostic-summary">No save attempt has been recorded.</p>
+        <dl id="diagnostic-details" hidden>
+          <div><dt>Time</dt><dd id="diagnostic-time"></dd></div>
+          <div><dt>Result</dt><dd id="diagnostic-result"></dd></div>
+          <div><dt>Stage</dt><dd id="diagnostic-stage"></dd></div>
+          <div><dt>Format</dt><dd id="diagnostic-format"></dd></div>
+          <div><dt>Model</dt><dd id="diagnostic-model"></dd></div>
+          <div><dt>Elapsed</dt><dd id="diagnostic-elapsed"></dd></div>
+          <div><dt>Article characters</dt><dd id="diagnostic-length"></dd></div>
+          <div id="diagnostic-error-row"><dt>Error</dt><dd id="diagnostic-error"></dd></div>
+        </dl>
+        <p class="hint">Diagnostics contain no API key, article text, title, or URL.</p>
+      </section>
+    </main>
+    <script src="settings.js"></script>
+  </body>
+</html>

@@ -1,0 +1,90 @@
+#clean-article-save-button {
+  all: initial;
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 2147483647;
+  box-sizing: border-box;
+  min-width: 76px;
+  min-height: 44px;
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 999px;
+  background: #174ea6;
+  color: #fff;
+  box-shadow: 0 3px 12px rgb(0 0 0 / 30%);
+  font: 600 16px/1.25 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  text-align: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#clean-article-save-button:active {
+  background: #123d82;
+  transform: translateY(1px);
+}
+
+#clean-article-save-button[data-state="working"] {
+  background: #5f6368;
+  cursor: progress;
+}
+
+#clean-article-save-button[data-state="success"] {
+  background: #137333;
+}
+
+#clean-article-save-button[data-state="error"] {
+  background: #b3261e;
+}
+
+#clean-article-error-panel {
+  all: initial;
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: calc(max(18px, env(safe-area-inset-bottom)) + 58px);
+  z-index: 2147483647;
+  box-sizing: border-box;
+  display: grid;
+  width: min(440px, calc(100vw - 32px));
+  gap: 9px;
+  padding: 15px;
+  border: 1px solid #b3261e;
+  border-radius: 12px;
+  background: #fff;
+  color: #241a19;
+  box-shadow: 0 4px 18px rgb(0 0 0 / 35%);
+  font: 14px/1.4 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-wrap: anywhere;
+}
+
+#clean-article-error-panel strong,
+#clean-article-error-panel span {
+  all: initial;
+  color: inherit;
+  font: inherit;
+  overflow-wrap: anywhere;
+}
+
+#clean-article-error-panel strong {
+  font-weight: 700;
+}
+
+#clean-article-error-panel button {
+  all: initial;
+  justify-self: end;
+  box-sizing: border-box;
+  min-height: 36px;
+  padding: 7px 13px;
+  border-radius: 8px;
+  background: #b3261e;
+  color: #fff;
+  font: 700 14px/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  cursor: pointer;
+}
+
+@media print {
+  #clean-article-save-button,
+  #clean-article-error-panel {
+    display: none !important;
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "manifest_version": 3,
+  "name": "Clean Article",
+  "version": "0.2.2",
+  "description": "Send the displayed article directly to OpenAI and save a clean EPUB, PDF, or RTF document.",
+  "icons": {
+    "48": "icons/clean-article.svg",
+    "96": "icons/clean-article.svg"
+  },
+  "permissions": [
+    "storage",
+    "downloads"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "action": {
+    "default_title": "Clean Article settings",
+    "default_icon": "icons/clean-article.svg"
+  },
+  "options_ui": {
+    "page": "settings/settings.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "css": [
+        "content/content.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "clean-article@local",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": [
+          "browsingActivity",
+          "websiteContent",
+          "authenticationInfo"
+        ]
+      }
+    },
+    "gecko_android": {
+      "strict_min_version": "140.0"
+    }
+  }
+}
