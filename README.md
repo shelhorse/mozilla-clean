@@ -1,6 +1,6 @@
 # Clean Article
 
-Clean Article 0.3.3 is a relay-free Firefox extension for Android and desktop.
+Clean Article 0.3.4 is a relay-free Firefox extension for Android and desktop.
 It captures the article currently displayed, asks OpenAI to clean it, and creates
 an EPUB, PDF, RTF, or self-contained HTML file locally in Firefox.
 
@@ -104,9 +104,9 @@ storage before retrieving it because the response ID is stored there.
 
 The build produces:
 
-- `dist/clean-article-0.3.3-unsigned.xpi`
-- `dist/clean-article-0.3.3-source.zip`
-- `dist/clean-article-0.3.3-project.zip`
+- `dist/clean-article-0.3.4-unsigned.xpi`
+- `dist/clean-article-0.3.4-source.zip`
+- `dist/clean-article-0.3.4-project.zip`
 
 Firefox release builds require Mozilla signing. Upload the unsigned XPI as a new
 version of the existing unlisted extension in the
@@ -164,6 +164,11 @@ The extension requires Firefox 140 or later.
   extension, not a public multi-user extension.
 
 ## Version history
+
+### 0.3.4
+
+- Fixes processing-page retrieval by passing the stored `jobId` returned by
+  submission to the manual retrieval function.
 
 ### 0.3.3
 

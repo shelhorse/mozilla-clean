@@ -90,7 +90,12 @@ context.window = context;
 
 vm.runInContext(await fs.readFile(workerPath, "utf8"), context, { filename: workerPath });
 
-context.CleanArticleWorker.showRetrieval(jobs.ready);
+context.CleanArticleWorker.showRetrieval({
+  jobId: "ready",
+  responseId: "resp_ready",
+  filename: "Ready article.html",
+  status: "queued"
+});
 assert.equal(nodes.get("retrieval").hidden, false);
 assert.equal(nodes.get("retrieve-button").textContent, "Retrieve document");
 await nodes.get("retrieve-button").dispatch("click");
@@ -103,7 +108,12 @@ assert.equal(download.download, "Ready article.html");
 assert.equal(download.textContent, "Download HTML");
 assert.match(nodes.get("retrieval-message").textContent, /green Download button/);
 
-context.CleanArticleWorker.showRetrieval(jobs.pending);
+context.CleanArticleWorker.showRetrieval({
+  jobId: "pending",
+  responseId: "resp_pending",
+  filename: "Pending article.html",
+  status: "queued"
+});
 await nodes.get("retrieve-button").dispatch("click");
 assert.deepEqual(retrievalCalls, ["ready", "pending"]);
 assert.equal(nodes.get("download-area").children.length, 0);

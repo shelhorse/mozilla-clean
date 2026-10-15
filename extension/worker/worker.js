@@ -7,7 +7,7 @@
   const retrieveButton = document.getElementById("retrieve-button");
   const retrievalMessage = document.getElementById("retrieval-message");
   const downloadArea = document.getElementById("download-area");
-  let currentJob = null;
+  let currentJobId = "";
   let downloadUrl = "";
 
   function transferIdFromLocation() {
@@ -81,7 +81,7 @@
   }
 
   function showRetrieval(job) {
-    currentJob = job;
+    currentJobId = job?.jobId || job?.id || "";
     retrieval.hidden = false;
     retrieveButton.hidden = false;
     retrieveButton.disabled = false;
@@ -91,15 +91,18 @@
   }
 
   async function retrieveDocument() {
-    if (!currentJob) return;
+    if (!currentJobId) {
+      retrievalMessage.textContent = "The submitted job identifier is missing.";
+      return;
+    }
     retrieveButton.disabled = true;
     retrieveButton.textContent = "Retrieving…";
     retrievalMessage.textContent = "Checking this response with OpenAI…";
     clearDownload();
 
     try {
-      const result = await CleanArticleCore.retrieveJobDocument(currentJob.id);
-      currentJob = result.job;
+      const result = await CleanArticleCore.retrieveJobDocument(currentJobId);
+      currentJobId = result.job.id;
       if (!result.ready) {
         retrievalMessage.textContent = "Not ready yet. Wait a little, then tap Retrieve document again.";
         retrieveButton.disabled = false;

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Clean Article",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Send the displayed article to OpenAI, then retrieve a clean EPUB, PDF, RTF, or HTML document.",
   "icons": {
     "48": "icons/clean-article.svg",

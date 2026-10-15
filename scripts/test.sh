@@ -25,7 +25,7 @@ fi
 node -e '
   const fs = require("fs");
   const manifest = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));
-  if (manifest.version !== "0.3.3") throw new Error("Expected manifest version 0.3.3");
+  if (manifest.version !== "0.3.4") throw new Error("Expected manifest version 0.3.4");
   if (manifest.background?.scripts?.[0] !== "background.js") throw new Error("Missing extension-menu action listener");
   if (manifest.permissions.some((value) => ["downloads", "alarms"].includes(value))) throw new Error("Forbidden manifest permission");
   if (manifest.action?.default_title !== "Clean Article") throw new Error("Unexpected extension-menu label");
