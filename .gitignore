@@ -4,3 +4,5 @@ __pycache__/
 dist/*
 !dist/.gitkeep
 tmp/
+live-test.config.json
+live-test-output/

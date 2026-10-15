@@ -1,68 +1,144 @@
 # Clean Article
 
-Clean Article is a relay-free Firefox for Android extension. When an article is
-visible in Firefox, including after Bypass Paywalls Clean has reconstructed it,
-tap **Clean Article** in Firefox's extensions menu. The extension sends that
-rendered article directly to OpenAI.
-OpenAI cleans the article, creates the selected document in an ephemeral Code
-Interpreter container, and returns the file to Firefox for download.
+Clean Article 0.3.3 is a relay-free Firefox extension for Android and desktop.
+It captures the article currently displayed, asks OpenAI to clean it, and creates
+an EPUB, PDF, RTF, or self-contained HTML file locally in Firefox.
 
-There is no Linux service, Docker container, relay URL, or relay token.
+There is no hosted relay, Linux service, Google account, automatic polling loop,
+or Firefox Downloads API dependency. The background script only handles the
+user's click on the extension action.
 
-## Workflow
+## Save and retrieve
 
-1. Tapping the extension in Firefox's menu asks the content script to capture
-   the article currently rendered in the active tab.
-2. The extension calls the OpenAI Responses API with Code Interpreter enabled.
-3. OpenAI removes site chrome without summarizing or rewriting the article.
-4. OpenAI creates a PDF, EPUB archive, or RTF document in its temporary
-   container.
-5. The extension downloads the container file directly from OpenAI, verifies
-   its basic file signature, assigns the article title as the filename, and
-   passes it to Firefox's download manager.
-6. The extension requests deletion of the OpenAI container.
+1. Open an article and wait for it to finish rendering.
+2. Open Firefox's **Extensions** menu and select **Clean Article**.
+3. A visible Clean Article tab opens and submits one durable OpenAI background
+   response with `background: true`, `stream: false`, and `store: true`.
+4. Wait until the page says **Submitted**. The OpenAI response ID is now stored
+   in the Firefox profile.
+5. Tap **Retrieve document** on that page.
+6. If OpenAI is still working, the page says **Not ready yet**. Wait a little and
+   tap **Retrieve document** again.
+7. If it is complete, the extension creates the selected file locally and shows
+   a **Download EPUB**, **Download PDF**, **Download RTF**, or **Download HTML**
+   link. Tap that link once.
 
-If a save fails, the exact failing stage and error are displayed on the article
-page. A content-free diagnostic record is also available under **Last save
-attempt** in extension settings. It contains timing, stage, format, model, and
-article character count, but no API key, article text, title, or URL.
+Firefox shows its normal download notification after the Download link is
+tapped. The file then appears in Firefox Downloads and the device's Downloads
+folder, subject to the device's normal download settings.
 
-OpenAI documents both
-[generated container files](https://developers.openai.com/api/docs/guides/tools-code-interpreter#work-with-files)
-and the
-[container-file download endpoint](https://developers.openai.com/api/reference/cli/resources/containers).
+## Why retrieval is manual
 
-## Important API-key tradeoff
+Firefox submits the article and OpenAI stores the generated response. Retrieval
+only runs while the processing page is visible and the user taps **Retrieve
+document**.
 
-A relay normally keeps the OpenAI API key off the client. With a relay-free
-design, the key must instead be stored in the Firefox extension's local profile
-on the Android device. It is not included in the extension package and is sent
-only to `api.openai.com`, but anyone who can extract the Firefox profile may be
-able to recover it.
+Each Retrieve tap makes one request for the saved response ID:
 
-Use a dedicated OpenAI project for this extension, set a low project budget and
-usage alerts, and revoke the key if the phone is lost. This is reasonable for a
-personal sideloaded extension, but it is not an appropriate design for an
-extension distributed to other users. OpenAI's production guidance recommends
-keeping API keys in a secure server-side location.
+- Firefox for Android uses one `XMLHttpRequest`.
+- Desktop Firefox uses one `fetch` request.
+- No fallback chain or retry loop runs behind the user's back.
+- No `browser.downloads.download()` call is made. A completed file is exposed as
+  a normal, user-tapped `<a download>` link on the processing page.
 
-## Build the extension
+Mozilla fixed user-initiated download links in Firefox for Android extension
+pages in Firefox 130. Clean Article requires Firefox 140 or later. See
+[Mozilla bug 1867717](https://bugzilla.mozilla.org/show_bug.cgi?id=1867717).
+
+This follows OpenAI's documented background-response flow: start a response in
+background mode, then retrieve the response by ID. The documented working states
+are `queued` and `in_progress`; any other status is terminal. See
+[OpenAI background mode](https://developers.openai.com/api/docs/guides/background).
+
+Responses are stored for at least 30 days by default when `store: true` is
+honored. Zero Data Retention projects are an exception: background response data
+is temporarily retained for roughly 10 minutes. See
+[OpenAI data controls](https://developers.openai.com/api/docs/guides/your-data#default-usage-policies-by-endpoint).
+
+## One-time setup
+
+1. Use a dedicated OpenAI project and API key for this extension.
+2. Enable billing, set a project budget, and configure usage alerts.
+3. Open Firefox's extension manager, select Clean Article, and open **Settings**
+   or **Options**.
+4. Enter the API key, choose the OpenAI model and document format, and save.
+5. Use **Test OpenAI** for a quick credential check.
+6. Use **Run submission self-test**, wait for **Submitted**, then tap **Retrieve
+   document** on the processing page.
+
+## Cleaning specification
+
+Settings offers three specification sources:
+
+- **Bundled default** uses the specification packaged with the extension.
+- **External HTTPS URL** downloads the current Markdown file for each new
+  article. The last successful copy is cached for temporary outages.
+- **Imported Markdown file** stores a copy in the Firefox profile. Re-import it
+  after changing the original file.
+
+Use **Load specification now** to validate the selected source. The external
+specification host receives only a request for that file, without the API key or
+article content.
+
+## Job states
+
+The processing page and Settings can display:
+
+- **Queued at OpenAI**: OpenAI accepted the response.
+- **Processing at OpenAI**: OpenAI is still working.
+- **Ready to retrieve**: a previous retrieval completed; tap **Retrieve
+  document** again to recreate the Download link.
+- **OpenAI job failed**: OpenAI returned a terminal error.
+- **Stored response unavailable**: OpenAI could not find the response ID, usually
+  because its retention period ended.
+
+Closing Firefox does not remove a queued job. Do not clear the extension's
+storage before retrieving it because the response ID is stored there.
+
+## Build and test
 
 ```bash
-./scripts/build-extension.sh
+./scripts/test.sh
+./scripts/package-project.sh
 ```
 
-This creates:
+The build produces:
 
-- `dist/clean-article-extension-unsigned.xpi`
-- `dist/clean-article-extension-source.zip`
+- `dist/clean-article-0.3.3-unsigned.xpi`
+- `dist/clean-article-0.3.3-source.zip`
+- `dist/clean-article-0.3.3-project.zip`
 
-Firefox release builds require Mozilla signing. Upload
-`clean-article-extension-unsigned.xpi` as a new version of the existing
-**unlisted** extension in the
+Firefox release builds require Mozilla signing. Upload the unsigned XPI as a new
+version of the existing unlisted extension in the
 [Mozilla Add-ons Developer Hub](https://addons.mozilla.org/developers/), then
-download the signed XPI. Keep the source archive available, but upload it only
-if AMO explicitly requests a separate source submission.
+download Mozilla's signed XPI.
+
+The automated suite verifies:
+
+- all JavaScript and manifest syntax;
+- durable submission with `background: true`, `stream: false`, and `store: true`;
+- extension-menu activation and visible processing-page submission;
+- exactly one Android retrieval request using `XMLHttpRequest`;
+- queued responses returning **Not ready yet**;
+- completed responses producing a literal user-tapped download anchor;
+- absence of alarms and downloads permissions;
+- absence of `browser.downloads` and `browser.alarms` source calls;
+- RTF, EPUB, PDF, and HTML generation;
+- packaged XPI integrity.
+
+## Optional live API test
+
+Copy the example configuration, protect the API key, and run the live test:
+
+```bash
+cp live-test.config.example.json live-test.config.json
+chmod 600 live-test.config.json
+node scripts/live-e2e.mjs
+```
+
+The live test uses the production request and formatter. Its command-line test
+runner checks the saved response until it is complete and writes the file under
+`live-test-output/`. The released extension itself does not poll.
 
 ## Install on Firefox for Android
 
@@ -72,77 +148,44 @@ if AMO explicitly requests a separate source submission.
 4. Return to Settings and select **Install Extension from File**.
 5. Select the signed XPI and approve the requested permissions.
 
-These are Mozilla's current
-[Android self-distribution instructions](https://extensionworkshop.com/documentation/publish/install-self-distributed/).
+The extension requires Firefox 140 or later.
 
-## Configure
+## Security and privacy
 
-1. Open Firefox's extension manager, select **Clean Article**, and open its
-   **Settings** or **Options** page.
-2. Paste a project API key from the
-   [OpenAI API key page](https://platform.openai.com/api-keys).
-3. Choose EPUB, PDF, or RTF.
-4. Leave the model at GPT-5.6 Luna unless you want to trade cost and speed for a
-   stronger model.
-5. Tap **Test connection**, then **Save settings**.
+- The API key is stored in Firefox `storage.local` and is not included in the
+  XPI. Anyone who can extract the Firefox profile may be able to recover it.
+- The selected article, URL, visible content, and cleaning specification are sent
+  directly from Firefox to OpenAI.
+- The article is treated as untrusted data. The prompt tells the model to ignore
+  commands embedded in article content.
+- Document creation occurs locally on the processing page. No credentials or
+  article data are sent to Google or a separate relay.
+- This client-side credential design is intended for a personal sideloaded
+  extension, not a public multi-user extension.
 
-The API project must have billing or credits available. GPT-5.6 Luna does not
-support the free API tier.
+## Version history
 
-## Save an article
+### 0.3.3
 
-1. Open the article and let BPC finish reconstructing it.
-2. Open Firefox's extensions menu and tap **Clean Article**.
-3. Wait while the extension icon displays its progress badge.
-4. Firefox downloads the completed document.
+- Activates Clean Article from Firefox's extensions menu instead of injecting a
+  floating Save button into every page.
+- Preserves the visible processing page and adds **Retrieve document** there.
+- Shows a green user-tapped Download link when the stored OpenAI response is
+  ready.
+- Labels the extension action **Clean Article** and links Settings to OpenAI's
+  API-key management page.
 
-The extension page itself shows no format choices. Those remain in extension
-settings.
+### 0.3.2
 
-## Cleaning policy
+- Replaces automatic retrieval with an extension-menu **Retrieve** button.
+- Keeps the visible Save progress tab but ends it at **Submitted**.
+- Submits one stored background response and records its response ID.
+- Uses exactly one retrieval request per tap, with Android using XMLHttpRequest.
+- Creates the selected file locally and exposes a normal Download link.
+- Removes the background process, alarms, automatic polling, downloads
+  permission, and Downloads API calls.
+- Retains HTML, EPUB, PDF, and RTF output.
 
-The policy is stored in `extension/spec/clean-article-spec.md`. Because the
-specification is packaged inside the signed extension, changing it requires a
-version rebuild and another Mozilla signing submission.
+### 0.2.9
 
-## Tests
-
-```bash
-./scripts/test.sh
-```
-
-The tests validate JavaScript syntax, response citation parsing, file-signature
-checks, filenames, manifest JSON, and extension packaging. A live OpenAI call
-requires your API key and is intentionally not part of the automated suite.
-
-## Current limitations
-
-- Images are omitted. Sending article images through the direct API flow would
-  materially increase request size and complexity.
-- Document generation uses a hosted model tool, so it is slower and less
-  deterministic than a fixed local converter. The extension rejects output
-  with the wrong basic file signature, but this is not full EPUB or PDF
-  conformance testing.
-- If Code Interpreter fails to create exactly one cited output file, Save fails
-  and can be retried.
-- The key is stored in Firefox `storage.local`; Android's hardware-backed
-  keystore is not available to ordinary Firefox extensions.
-- The supplied XPI is unsigned. Mozilla signing is required for permanent use
-  in Firefox release.
-
-## Version 0.2.1
-
-- Displays the full save error on the article page instead of only “Failed.”
-- Records the failing pipeline stage and safe diagnostic metadata in Settings.
-- Includes OpenAI request IDs in API errors when the response exposes one.
-
-## Version 0.2.2
-
-- Lowers the minimum supported Firefox desktop and Android version from 142 to
-  140.
-
-## Version 0.2.3
-
-- Saves the active article when **Clean Article** is selected from Firefox's
-  extensions menu.
-- Removes the floating **Save** button from web pages.
+- Added the self-contained, mobile-friendly HTML output format.

@@ -6,6 +6,8 @@
   }
 
   const ERROR_ID = "clean-article-error-panel";
+  const PENDING_ARTICLE_PREFIX = "pendingArticle:";
+  const WORKER_PAGE = "worker/worker.html";
   const MAX_HTML_CHARACTERS = 1_600_000;
   const EXCLUDED_SELECTOR = [
     "script",
@@ -232,30 +234,68 @@
     document.documentElement.appendChild(panel);
   }
 
+  async function recordTransferError(error, article, startedAt) {
+    try {
+      await browser.storage.local.set({
+        lastDiagnostic: {
+          extensionVersion: browser.runtime.getManifest().version,
+          timestamp: new Date().toISOString(),
+          status: "error",
+          stage: error.cleanArticleStage || "worker",
+          format: "See current settings",
+          model: "See current settings",
+          articleTextLength: article?.textLength || 0,
+          elapsedMs: Date.now() - startedAt,
+          error: error?.message || String(error)
+        }
+      });
+    } catch {
+      // Preserve the original transfer error.
+    }
+  }
+
+  async function handArticleToWorker(transferId, article) {
+    const articleKey = `${PENDING_ARTICLE_PREFIX}${transferId}`;
+    try {
+      await browser.storage.local.set({
+        [articleKey]: {
+          createdAt: Date.now(),
+          article
+        }
+      });
+    } catch (error) {
+      error.cleanArticleStage = "transfer";
+      throw error;
+    }
+  }
+
   let saveInProgress = false;
 
-  async function saveArticle() {
+  async function prepareArticle() {
     if (saveInProgress) {
-      return { ok: false, error: "A save is already in progress." };
+      return { ok: false, error: "An article is already being prepared." };
     }
 
     saveInProgress = true;
+    const startedAt = Date.now();
+    let article;
+    const transferId = crypto.randomUUID();
     clearError();
     try {
-      const article = extractArticle();
+      article = extractArticle();
       if (article.textLength < 200) {
         throw new Error("No substantial article text was found.");
       }
-      const result = await browser.runtime.sendMessage({
-        type: "save-article",
-        article
-      });
-      if (!result?.ok) {
-        throw new Error(result?.error || "The document could not be created.");
-      }
-      return { ok: true, filename: result.filename };
+      await handArticleToWorker(transferId, article);
+      return {
+        ok: true,
+        workerUrl: `${browser.runtime.getURL(WORKER_PAGE)}#${transferId}`
+      };
     } catch (error) {
       console.error("Clean Article:", error);
+      if (error.cleanArticleStage === "transfer") {
+        await recordTransferError(error, article, startedAt);
+      }
       const message = error?.message || String(error);
       showError(message);
       return { ok: false, error: message };
@@ -265,8 +305,8 @@
   }
 
   browser.runtime.onMessage.addListener((message) => {
-    if (message?.type === "save-article-from-action") {
-      return saveArticle();
+    if (message?.type === "prepare-article-for-save") {
+      return prepareArticle();
     }
     return false;
   });

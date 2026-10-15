@@ -37,13 +37,12 @@ h1 {
 header p,
 .hint,
 .privacy-note,
-.diagnostics {
+.diagnostics,
+.jobs {
   color: color-mix(in srgb, CanvasText 70%, transparent);
 }
 
-a {
-  color: LinkText;
-}
+a { color: LinkText; }
 
 fieldset {
   display: grid;
@@ -119,11 +118,51 @@ button.secondary {
   color: #174ea6;
 }
 
-#status {
+button.compact {
+  min-height: 36px;
+  padding: 6px 11px;
+  font-size: .9rem;
+}
+
+#status,
+#specification-status {
   display: block;
   min-height: 1.5em;
   margin-top: 14px;
   font-weight: 600;
+}
+
+#drive-status {
+  display: block;
+  min-height: 1.5em;
+  margin-top: 12px;
+  font-weight: 600;
+}
+
+.device-authorization {
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb, #174ea6 45%, transparent);
+  border-radius: 10px;
+}
+
+.device-authorization p {
+  margin-bottom: 8px;
+}
+
+#device-code {
+  display: block;
+  margin-bottom: 12px;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 1.5rem;
+  letter-spacing: .08em;
+  overflow-wrap: anywhere;
+}
+
+#device-link {
+  display: inline-block;
+  margin-bottom: 12px;
+  font-weight: 700;
 }
 
 .privacy-note {
@@ -136,7 +175,8 @@ button.secondary {
   font-size: 1rem;
 }
 
-.diagnostics {
+.diagnostics,
+.jobs {
   margin-top: 24px;
   padding: 16px;
   border: 1px solid color-mix(in srgb, CanvasText 20%, transparent);
@@ -145,14 +185,61 @@ button.secondary {
 }
 
 .diagnostics h2,
+.jobs h2,
 .diagnostics dt,
 .diagnostics dd {
   color: CanvasText;
 }
 
-.diagnostics h2 {
+.diagnostics h2,
+.jobs h2 {
   margin-bottom: 8px;
   font-size: 1rem;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.section-heading h2 {
+  margin: 0;
+}
+
+#jobs-list {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0 0;
+  padding-left: 24px;
+}
+
+#jobs-list li {
+  padding-left: 4px;
+}
+
+#jobs-list strong,
+#jobs-list a,
+#jobs-list span,
+#jobs-list small {
+  display: block;
+}
+
+#jobs-list a,
+#jobs-list strong {
+  color: CanvasText;
+  font-weight: 700;
+}
+
+#jobs-list span,
+#jobs-list small {
+  margin-top: 3px;
+}
+
+#jobs-list small {
+  color: #b42318;
+  overflow-wrap: anywhere;
 }
 
 #diagnostic-summary {

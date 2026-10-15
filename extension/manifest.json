@@ -1,15 +1,14 @@
 {
   "manifest_version": 3,
   "name": "Clean Article",
-  "version": "0.2.3",
-  "description": "Send the displayed article directly to OpenAI and save a clean EPUB, PDF, or RTF document.",
+  "version": "0.3.3",
+  "description": "Send the displayed article to OpenAI, then retrieve a clean EPUB, PDF, RTF, or HTML document.",
   "icons": {
     "48": "icons/clean-article.svg",
     "96": "icons/clean-article.svg"
   },
   "permissions": [
-    "storage",
-    "downloads"
+    "storage"
   ],
   "host_permissions": [
     "http://*/*",
@@ -41,6 +40,17 @@
         "content/content.css"
       ],
       "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "worker/worker.html"
+      ],
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ]
     }
   ],
   "browser_specific_settings": {

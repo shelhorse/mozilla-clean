@@ -10,23 +10,15 @@
     <main>
       <header>
         <img src="../icons/clean-article.svg" alt="" width="48" height="48">
-        <div>
-          <h1>Clean Article</h1>
-          <p>Settings used whenever you tap Clean Article in Firefox's extensions menu.</p>
-        </div>
+        <div><h1>Clean Article</h1><p>Settings used whenever you select Clean Article from Firefox's extensions menu.</p></div>
       </header>
-
       <form id="settings-form">
         <fieldset>
           <legend>Document</legend>
-
           <label for="format">Default format</label>
           <select id="format" name="format">
-            <option value="epub">EPUB</option>
-            <option value="pdf">PDF</option>
-            <option value="rtf">RTF</option>
+            <option value="epub">EPUB</option><option value="pdf">PDF</option><option value="rtf">RTF</option><option value="html">HTML</option>
           </select>
-
           <label for="model">OpenAI model</label>
           <select id="model" name="model">
             <option value="gpt-5.6-luna">GPT-5.6 Luna</option>
@@ -34,30 +26,59 @@
             <option value="gpt-5.6">GPT-5.6 Sol</option>
           </select>
         </fieldset>
-
         <fieldset>
           <legend>OpenAI</legend>
-
           <label for="api-key">Project API key</label>
           <input id="api-key" name="apiKey" type="password" autocomplete="off" placeholder="sk-proj-…" required>
-          <p class="hint">
-            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">Create or manage an OpenAI API key</a>.
-            A saved key is stored in this Firefox profile and sent only to api.openai.com.
-          </p>
+          <p class="hint"><a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">Create or manage an OpenAI API key</a>. The saved key is stored in this Firefox profile and sent only to api.openai.com.</p>
         </fieldset>
+        <fieldset>
+          <legend>Cleaning specification</legend>
+          <label for="specification-mode">Source</label>
+          <select id="specification-mode" name="specificationMode">
+            <option value="bundled">Bundled default</option>
+            <option value="url">External HTTPS URL</option>
+            <option value="imported">Imported Markdown file</option>
+          </select>
 
+          <div id="specification-url-fields">
+            <label for="specification-url">Specification URL</label>
+            <input id="specification-url" name="specificationUrl" type="url" inputmode="url" placeholder="https://raw.githubusercontent.com/…/clean-article-spec.md">
+            <p class="hint">The current file is downloaded for each new article. The last successful copy is cached for temporary outages.</p>
+          </div>
+
+          <div id="specification-import-fields">
+            <label for="specification-file">Import Markdown or text file</label>
+            <input id="specification-file" type="file" accept=".md,.markdown,.txt,text/markdown,text/plain">
+            <p id="imported-specification-name" class="hint">No specification has been imported.</p>
+            <p class="hint">Firefox stores a copy. Re-import the file after editing it.</p>
+          </div>
+
+          <div class="actions">
+            <button id="test-specification-button" class="secondary" type="button">Load specification now</button>
+          </div>
+          <output id="specification-status" role="status" aria-live="polite"></output>
+        </fieldset>
         <div class="actions">
           <button type="submit">Save settings</button>
-          <button id="test-button" class="secondary" type="button">Test connection</button>
+          <button id="test-button" class="secondary" type="button">Test OpenAI</button>
+          <button id="end-to-end-test-button" class="secondary" type="button">Run submission self-test</button>
         </div>
+        <p class="hint">The self-test queues a small article through the same visible processing page used for articles.</p>
         <output id="status" role="status" aria-live="polite"></output>
       </form>
-
       <section class="privacy-note">
-        <h2>What is transmitted</h2>
-        <p>The page you explicitly save, its URL, and its visible article content are sent directly from Firefox to OpenAI. There is no separate relay.</p>
+        <h2>What happens after activation</h2>
+        <p>The selected page, URL, visible article content, and chosen cleaning specification are sent directly from Firefox to OpenAI. The visible processing page records the response ID after OpenAI accepts the job. Its Retrieve document button fetches that stored response and creates the selected document locally. An external specification host receives only the request for that file, never your API key or article.</p>
       </section>
-
+      <section class="jobs" aria-labelledby="jobs-heading">
+        <div class="section-heading">
+          <h2 id="jobs-heading">Recent jobs</h2>
+        </div>
+        <p id="jobs-empty">No article jobs have been submitted.</p>
+        <p class="hint">Return to the article's processing page to retrieve the job and download its file.</p>
+        <ol id="jobs-list"></ol>
+      </section>
       <section class="diagnostics" aria-labelledby="diagnostics-heading">
         <h2 id="diagnostics-heading">Last save attempt</h2>
         <p id="diagnostic-summary">No save attempt has been recorded.</p>
@@ -74,6 +95,7 @@
         <p class="hint">Diagnostics contain no API key, article text, title, or URL.</p>
       </section>
     </main>
+    <script src="../core.js"></script>
     <script src="settings.js"></script>
   </body>
 </html>

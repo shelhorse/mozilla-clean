@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Clean Article processing</title>
+  <link rel="stylesheet" href="worker.css">
+</head>
+<body>
+  <main>
+    <div class="mark" aria-hidden="true">C</div>
+    <p class="eyebrow">Clean Article</p>
+    <h1 id="status">Starting…</h1>
+    <p id="detail">Preparing the article for processing.</p>
+    <div class="progress" aria-hidden="true"><span></span></div>
+    <p class="note" id="note">Keep this tab open until OpenAI accepts the job.</p>
+    <section id="retrieval" class="retrieval" hidden>
+      <button id="retrieve-button" type="button">Retrieve document</button>
+      <p id="retrieval-message" role="status" aria-live="polite"></p>
+      <div id="download-area"></div>
+    </section>
+  </main>
+  <script src="../vendor/jszip.min.js"></script>
+  <script src="../vendor/pdf-lib.min.js"></script>
+  <script src="../core.js"></script>
+  <script src="worker.js"></script>
+</body>
+</html>
