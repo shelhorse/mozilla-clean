@@ -5,7 +5,6 @@
     return;
   }
 
-  const BUTTON_ID = "clean-article-save-button";
   const ERROR_ID = "clean-article-error-panel";
   const MAX_HTML_CHARACTERS = 1_600_000;
   const EXCLUDED_SELECTOR = [
@@ -39,8 +38,7 @@
     ".subscription-widget",
     ".social-share",
     ".comments",
-    `#${ERROR_ID}`,
-    `#${BUTTON_ID}`
+    `#${ERROR_ID}`
   ].join(",");
 
   function firstMeta(selectors) {
@@ -209,12 +207,6 @@
     };
   }
 
-  function setButtonState(button, state, label) {
-    button.dataset.state = state;
-    button.textContent = label;
-    button.disabled = state === "working";
-  }
-
   function clearError() {
     document.getElementById(ERROR_ID)?.remove();
   }
@@ -240,9 +232,15 @@
     document.documentElement.appendChild(panel);
   }
 
-  async function saveArticle(button) {
+  let saveInProgress = false;
+
+  async function saveArticle() {
+    if (saveInProgress) {
+      return { ok: false, error: "A save is already in progress." };
+    }
+
+    saveInProgress = true;
     clearError();
-    setButtonState(button, "working", "Saving…");
     try {
       const article = extractArticle();
       if (article.textLength < 200) {
@@ -255,28 +253,21 @@
       if (!result?.ok) {
         throw new Error(result?.error || "The document could not be created.");
       }
-      setButtonState(button, "success", "Saved");
-      window.setTimeout(() => setButtonState(button, "idle", "Save"), 2200);
+      return { ok: true, filename: result.filename };
     } catch (error) {
       console.error("Clean Article:", error);
-      setButtonState(button, "error", "Failed");
-      button.title = error.message;
-      showError(error.message);
-      window.setTimeout(() => setButtonState(button, "idle", "Save"), 3500);
+      const message = error?.message || String(error);
+      showError(message);
+      return { ok: false, error: message };
+    } finally {
+      saveInProgress = false;
     }
   }
 
-  function installButton() {
-    if (document.getElementById(BUTTON_ID)) return;
-    const button = document.createElement("button");
-    button.id = BUTTON_ID;
-    button.type = "button";
-    button.textContent = "Save";
-    button.dataset.state = "idle";
-    button.setAttribute("aria-label", "Save a clean copy of this article");
-    button.addEventListener("click", () => saveArticle(button));
-    document.documentElement.appendChild(button);
-  }
-
-  installButton();
+  browser.runtime.onMessage.addListener((message) => {
+    if (message?.type === "save-article-from-action") {
+      return saveArticle();
+    }
+    return false;
+  });
 })();

@@ -41,6 +41,10 @@ header p,
   color: color-mix(in srgb, CanvasText 70%, transparent);
 }
 
+a {
+  color: LinkText;
+}
+
 fieldset {
   display: grid;
   gap: 9px;

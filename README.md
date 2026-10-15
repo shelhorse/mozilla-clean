@@ -2,7 +2,8 @@
 
 Clean Article is a relay-free Firefox for Android extension. When an article is
 visible in Firefox, including after Bypass Paywalls Clean has reconstructed it,
-tap **Save**. The extension sends that rendered article directly to OpenAI.
+tap **Clean Article** in Firefox's extensions menu. The extension sends that
+rendered article directly to OpenAI.
 OpenAI cleans the article, creates the selected document in an ephemeral Code
 Interpreter container, and returns the file to Firefox for download.
 
@@ -10,7 +11,8 @@ There is no Linux service, Docker container, relay URL, or relay token.
 
 ## Workflow
 
-1. The content script captures the article currently rendered in Firefox.
+1. Tapping the extension in Firefox's menu asks the content script to capture
+   the article currently rendered in the active tab.
 2. The extension calls the OpenAI Responses API with Code Interpreter enabled.
 3. OpenAI removes site chrome without summarizing or rewriting the article.
 4. OpenAI creates a PDF, EPUB archive, or RTF document in its temporary
@@ -75,9 +77,10 @@ These are Mozilla's current
 
 ## Configure
 
-1. Open **Firefox > Extensions > Clean Article**. The standard options entry in
-   Manage Extensions opens the same settings page when Firefox exposes it.
-2. Paste a project API key from the OpenAI Platform.
+1. Open Firefox's extension manager, select **Clean Article**, and open its
+   **Settings** or **Options** page.
+2. Paste a project API key from the
+   [OpenAI API key page](https://platform.openai.com/api-keys).
 3. Choose EPUB, PDF, or RTF.
 4. Leave the model at GPT-5.6 Luna unless you want to trade cost and speed for a
    stronger model.
@@ -89,8 +92,8 @@ support the free API tier.
 ## Save an article
 
 1. Open the article and let BPC finish reconstructing it.
-2. Tap the floating **Save** button.
-3. Wait while the button displays **Saving…**.
+2. Open Firefox's extensions menu and tap **Clean Article**.
+3. Wait while the extension icon displays its progress badge.
 4. Firefox downloads the completed document.
 
 The extension page itself shows no format choices. Those remain in extension
@@ -137,3 +140,9 @@ requires your API key and is intentionally not part of the automated suite.
 
 - Lowers the minimum supported Firefox desktop and Android version from 142 to
   140.
+
+## Version 0.2.3
+
+- Saves the active article when **Clean Article** is selected from Firefox's
+  extensions menu.
+- Removes the floating **Save** button from web pages.

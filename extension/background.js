@@ -9,6 +9,8 @@ const DEFAULTS = {
 const API_ROOT = "https://api.openai.com/v1";
 const REQUEST_TIMEOUT_MS = 300000;
 const DIAGNOSTIC_KEY = "lastDiagnostic";
+const ACTION_TITLE = "Clean Article";
+const actionResetTimers = new Map();
 
 const STAGE_LABELS = {
   settings: "settings",
@@ -310,16 +312,50 @@ async function saveArticle(article) {
   }
 }
 
-browser.action.onClicked.addListener(async () => {
+async function setActionStatus(tabId, text, color, title) {
+  await Promise.all([
+    browser.action.setBadgeText({ tabId, text }),
+    browser.action.setBadgeBackgroundColor({ tabId, color }),
+    browser.action.setTitle({ tabId, title })
+  ]);
+}
+
+function resetActionStatus(tabId, delay = 2500) {
+  clearTimeout(actionResetTimers.get(tabId));
+  const timer = setTimeout(() => {
+    actionResetTimers.delete(tabId);
+    Promise.all([
+      browser.action.setBadgeText({ tabId, text: "" }),
+      browser.action.setTitle({ tabId, title: ACTION_TITLE })
+    ]).catch(() => {});
+  }, delay);
+  actionResetTimers.set(tabId, timer);
+}
+
+async function activateArticle(tab) {
+  if (!tab?.id) return;
+  clearTimeout(actionResetTimers.get(tab.id));
   try {
-    await browser.runtime.openOptionsPage();
-  } catch {
-    await browser.tabs.create({
-      url: browser.runtime.getURL("settings/settings.html"),
-      active: true
+    await setActionStatus(tab.id, "…", "#5f6368", "Saving clean article…")
+      .catch(() => {});
+    const result = await browser.tabs.sendMessage(tab.id, {
+      type: "save-article-from-action"
     });
+    if (!result?.ok) {
+      throw new Error(result?.error || "The document could not be created.");
+    }
+    await setActionStatus(tab.id, "✓", "#137333", `Saved ${result.filename}`)
+      .catch(() => {});
+    resetActionStatus(tab.id);
+  } catch (error) {
+    const message = error?.message || String(error);
+    await setActionStatus(tab.id, "!", "#b3261e", `Clean Article failed: ${message}`)
+      .catch(() => {});
+    resetActionStatus(tab.id, 5000);
   }
-});
+}
+
+browser.action.onClicked.addListener(activateArticle);
 
 browser.runtime.onMessage.addListener((message) => {
   if (message?.type === "test-connection") {

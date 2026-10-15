@@ -4,6 +4,8 @@ import vm from "node:vm";
 
 const source = fs.readFileSync(new URL("../extension/background.js", import.meta.url), "utf8");
 const noopEvent = { addListener() {}, removeListener() {} };
+const actionCalls = [];
+let actionClickListener;
 const context = vm.createContext({
   AbortController,
   Blob,
@@ -12,14 +14,37 @@ const context = vm.createContext({
   URL,
   Uint8Array,
   browser: {
-    action: { onClicked: noopEvent },
+    action: {
+      onClicked: {
+        addListener(listener) {
+          actionClickListener = listener;
+        }
+      },
+      setBadgeText(details) {
+        actionCalls.push(["badge", details]);
+      },
+      setBadgeBackgroundColor(details) {
+        actionCalls.push(["color", details]);
+      },
+      setTitle(details) {
+        actionCalls.push(["title", details]);
+      }
+    },
     downloads: { onChanged: noopEvent },
     runtime: { onMessage: noopEvent },
-    storage: { local: {} }
+    storage: { local: {} },
+    tabs: {
+      async sendMessage(tabId, message) {
+        actionCalls.push(["message", { tabId, message }]);
+        return { ok: true, filename: "Article.epub" };
+      }
+    }
   },
-  clearTimeout,
+  clearTimeout() {},
   fetch: async () => {},
-  setTimeout
+  setTimeout() {
+    return 1;
+  }
 });
 
 vm.runInContext(
@@ -53,5 +78,13 @@ assert.throws(
   () => validateDocument(new TextEncoder().encode("not a document").buffer, "pdf"),
   /not valid PDF/
 );
+
+await actionClickListener({ id: 42 });
+const messageCall = actionCalls.find(([kind]) => kind === "message");
+assert.equal(messageCall[1].tabId, 42);
+assert.equal(messageCall[1].message.type, "save-article-from-action");
+assert.ok(actionCalls.some(([kind, details]) => (
+  kind === "title" && details.title === "Saved Article.epub"
+)));
 
 console.log("background tests passed");

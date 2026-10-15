@@ -12,7 +12,7 @@
         <img src="../icons/clean-article.svg" alt="" width="48" height="48">
         <div>
           <h1>Clean Article</h1>
-          <p>Settings used whenever you tap Save on an article.</p>
+          <p>Settings used whenever you tap Clean Article in Firefox's extensions menu.</p>
         </div>
       </header>
 
@@ -40,7 +40,10 @@
 
           <label for="api-key">Project API key</label>
           <input id="api-key" name="apiKey" type="password" autocomplete="off" placeholder="sk-proj-…" required>
-          <p class="hint">The key is stored in this Firefox profile and sent only to api.openai.com.</p>
+          <p class="hint">
+            <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer">Create or manage an OpenAI API key</a>.
+            A saved key is stored in this Firefox profile and sent only to api.openai.com.
+          </p>
         </fieldset>
 
         <div class="actions">
