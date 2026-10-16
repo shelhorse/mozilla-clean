@@ -4,9 +4,9 @@ Clean Article 0.3.4 is a relay-free Firefox extension for Android and desktop.
 It captures the article currently displayed, asks OpenAI to clean it, and creates
 an EPUB, PDF, RTF, or self-contained HTML file locally in Firefox.
 
-The result is a portable, distraction-free document that preserves the article's
-title, byline, headings, links, and substantive text while removing page chrome,
-ads, prompts, and other unrelated material.
+The result is a portable, distraction-free document saved for offline reading.
+It preserves the article's title, byline, headings, links, and substantive text
+while removing page chrome, ads, prompts, and other unrelated material.
 
 There is no hosted relay, Linux service, Google account, automatic polling loop,
 or Firefox Downloads API dependency. The background script only handles the
