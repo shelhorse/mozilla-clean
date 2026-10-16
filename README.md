@@ -8,7 +8,7 @@ There is no hosted relay, Linux service, Google account, automatic polling loop,
 or Firefox Downloads API dependency. The background script only handles the
 user's click on the extension action.
 
-## Save and retrieve
+## Use Clean Article
 
 1. Open an article and wait for it to finish rendering.
 2. Open Firefox's **Extensions** menu and select **Clean Article**.
@@ -22,6 +22,10 @@ user's click on the extension action.
 7. If it is complete, the extension creates the selected file locally and shows
    a **Download EPUB**, **Download PDF**, **Download RTF**, or **Download HTML**
    link. Tap that link once.
+
+Keep the processing page open until the document has been downloaded. The job
+record remains in Settings if the page is closed, but version 0.3.4 does not
+recreate a closed processing page.
 
 Firefox shows its normal download notification after the Download link is
 tapped. The file then appears in Firefox Downloads and the device's Downloads
@@ -80,9 +84,9 @@ Use **Load specification now** to validate the selected source. The external
 specification host receives only a request for that file, without the API key or
 article content.
 
-## Job states
+## Processing states
 
-The processing page and Settings can display:
+The processing page and the recent-jobs list in Settings can display:
 
 - **Queued at OpenAI**: OpenAI accepted the response.
 - **Processing at OpenAI**: OpenAI is still working.
@@ -92,8 +96,9 @@ The processing page and Settings can display:
 - **Stored response unavailable**: OpenAI could not find the response ID, usually
   because its retention period ended.
 
-Closing Firefox does not remove a queued job. Do not clear the extension's
-storage before retrieving it because the response ID is stored there.
+Do not clear the extension's storage before retrieving a document because the
+response ID is stored there. Keep the processing page open so its **Retrieve
+document** control remains available.
 
 ## Build and test
 
@@ -163,34 +168,15 @@ The extension requires Firefox 140 or later.
 - This client-side credential design is intended for a personal sideloaded
   extension, not a public multi-user extension.
 
-## Version history
+## Current release
 
 ### 0.3.4
 
+- Starts from the **Clean Article** entry in Firefox's extensions menu without
+  injecting controls into the article page.
+- Opens a visible processing page for submission, manual retrieval, and the
+  final green Download button.
 - Fixes processing-page retrieval by passing the stored `jobId` returned by
   submission to the manual retrieval function.
-
-### 0.3.3
-
-- Activates Clean Article from Firefox's extensions menu instead of injecting a
-  floating Save button into every page.
-- Preserves the visible processing page and adds **Retrieve document** there.
-- Shows a green user-tapped Download link when the stored OpenAI response is
-  ready.
-- Labels the extension action **Clean Article** and links Settings to OpenAI's
-  API-key management page.
-
-### 0.3.2
-
-- Replaces automatic retrieval with an extension-menu **Retrieve** button.
-- Keeps the visible Save progress tab but ends it at **Submitted**.
-- Submits one stored background response and records its response ID.
-- Uses exactly one retrieval request per tap, with Android using XMLHttpRequest.
-- Creates the selected file locally and exposes a normal Download link.
-- Removes the background process, alarms, automatic polling, downloads
-  permission, and Downloads API calls.
-- Retains HTML, EPUB, PDF, and RTF output.
-
-### 0.2.9
-
-- Added the self-contained, mobile-friendly HTML output format.
+- Supports HTML, EPUB, PDF, and RTF output without automatic polling or the
+  Firefox Downloads API.
